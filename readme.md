@@ -3,9 +3,9 @@
 Steps to execute:
 
 ```(bash)
-cd 
+cd ./src
 ```
 
 ```(bash)
 cd python read_grid.py
-```
+``` 
