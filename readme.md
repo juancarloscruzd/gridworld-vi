@@ -7,5 +7,5 @@ cd ./src
 ```
 
 ```(bash)
-cd python read_grid.py
+python read_grid.py
 ``` 
