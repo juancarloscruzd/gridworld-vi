@@ -157,7 +157,7 @@ def interate_values(grid, v , policy, gamma, theta, p_stoch):
 
 if __name__ == '__main__':
 
-    domain_file = './PruebasGrid/FixedGoalInitialState/navigation_2_grid.net'
+    domain_file = './PruebasGrid/RandomGoalInitialState/navigation_2_grid.net'
 
     with open(domain_file, 'r') as file:
         lines = file.readlines()

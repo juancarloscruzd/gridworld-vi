@@ -23,10 +23,10 @@ class GridWorld(object):
                 reward = self.step_reward
                 n_state = state + self.action_space[action]
 
-                if n_state in self.items.get('fire').get('loc'):
-                    reward += self.items.get('fire').get('reward')
-                elif n_state in self.items.get('water').get('loc'):
-                    reward += self.items.get('water').get('reward')
+                if n_state in self.items.get('wall').get('loc'):
+                    reward += self.items.get('wall').get('reward')
+                elif n_state in self.items.get('goal').get('loc'):
+                    reward += self.items.get('goal').get('reward')
                 elif self.check_move(n_state, state):
                     n_state = state
 
@@ -34,7 +34,7 @@ class GridWorld(object):
         return P
 
     def check_terminal(self, state):
-        return state in self.items.get('fire').get('loc') + self.items.get('water').get('loc')
+        return state in self.items.get('wall').get('loc') + self.items.get('goal').get('loc')
 
     def check_move(self, n_state, oldState):
         if n_state not in self.state_space:
@@ -53,13 +53,17 @@ def print_v(v, grid):
     norm = plt.Normalize(v.min(), v.max())
     rgba = cmap(norm(v))
 
-    for w in grid.items.get('water').get('loc'):
+    for w in grid.items.get('goal').get('loc'):
         idx = np.unravel_index(w, v.shape)
         rgba[idx] = 0.0, 0.5, 0.8, 1.0
 
-    for f in grid.items.get('fire').get('loc'):
+    for f in grid.items.get('wall').get('loc'):
         idx = np.unravel_index(f, v.shape)
         rgba[idx] = 1.0, 0.5, 0.1, 1.0
+    
+    for s in grid.items.get('start').get('loc'):
+        idx = np.unravel_index(s, v.shape)
+        rgba[idx] = 0.0, 0.0, 0.0, 1.0
 
     fig, ax = plt.subplots()
     im = ax.imshow(rgba, interpolation='nearest')
@@ -84,13 +88,17 @@ def print_policy(v, policy, grid):
     norm = plt.Normalize(v.min(), v.max())
     rgba = cmap(norm(v))
 
-    for w in grid.items.get('water').get('loc'):
+    for w in grid.items.get('goal').get('loc'):
         idx = np.unravel_index(w, v.shape)
         rgba[idx] = 0.0, 0.5, 0.8, 1.0
 
-    for f in grid.items.get('fire').get('loc'):
+    for f in grid.items.get('wall').get('loc'):
         idx = np.unravel_index(f, v.shape)
         rgba[idx] = 1.0, 0.5, 0.1, 1.0
+    
+    for s in grid.items.get('start').get('loc'):
+        idx = np.unravel_index(s, v.shape)
+        rgba[idx] = 0.0, 0.0, 0.0, 1.0
 
     fig, ax = plt.subplots()
     im = ax.imshow(rgba, interpolation='nearest')
@@ -149,30 +157,31 @@ def interate_values(grid, v , policy, gamma, theta):
 
 if __name__ == '__main__':
 
-    domain_file = './PruebasGrid/FixedGoalInitialState/navigation_1_grid.net'
+    domain_file = './PruebasGrid/RandomGoalInitialState/navigation_4_grid.net'
 
     with open(domain_file, 'r') as file:
         lines = file.readlines()
-        print(lines)
         nrows = len(lines)
         ncols = len(lines[0].strip().split())
         walls = []
+        start = 0
         end = 0
         iterator = 0
         for i in range(nrows):
             tokens = lines[i].strip().split()
-            print(tokens)
             for j in range(ncols):
-                print(tokens[j])
                 if tokens[j] == "1":
                     walls.append(iterator)
+                if tokens[j] == "2":
+                    start = iterator
                 if tokens[j] == "3":
                     end = iterator
                 iterator = iterator + 1
                     
     grid_size = (nrows, ncols)
-    items = {'fire': {'reward': -10, 'loc': walls},
-             'water': {'reward': 10, 'loc': [end]}}
+    items = {'wall': {'reward': -10, 'loc': walls},
+             'goal': {'reward': 10, 'loc': [end]},
+             'start': {'reward': 0, 'loc': [start]}}
 
     gamma = 0.9
     theta = 1e-10
@@ -184,6 +193,6 @@ if __name__ == '__main__':
 
     v, policy = interate_values(env, v, policy, gamma, theta)
 
-    # print_v(v, env)
+    #print_v(v, env)
     print_policy(v, policy, env)
 
