@@ -23,7 +23,6 @@ class GridWorld(object):
                 reward = self.step_reward
                 n_state = state + self.action_space[action]
 
-
                 if n_state in self.items.get('fire').get('loc'):
                     reward += self.items.get('fire').get('reward')
                 elif n_state in self.items.get('water').get('loc'):
@@ -67,8 +66,10 @@ def print_v(v, grid):
 
     for i in range(v.shape[0]):
         for j in range(v.shape[1]):
+            c = 'w'
+            if v[i, j] < 4: c = 'k'
             if v[i, j] != 0:
-                text = ax.text(j, i, v[i, j], ha="center", va="center", color="w")
+                text = ax.text(j, i, round(v[i, j],2), ha="center", va="center", color=c)
 
     plt.axis('off')
     # plt.savefig('deterministic_v.jpg', bbox_inches='tight', dpi=200)
@@ -96,8 +97,10 @@ def print_policy(v, policy, grid):
 
     for i in range(v.shape[0]):
         for j in range(v.shape[1]):
+            c = 'w'
+            if v[i, j] < 4: c = 'k'
             if v[i, j] != 0:
-                text = ax.text(j, i, policy[i, j], ha="center", va="center", color="w")
+                text = ax.text(j, i, policy[i, j], ha="center", va="center", color=c)
 
     plt.axis('off')
     # plt.savefig('deterministic_policy.jpg', bbox_inches='tight', dpi=200)
@@ -146,11 +149,32 @@ def interate_values(grid, v , policy, gamma, theta):
 
 if __name__ == '__main__':
 
-    grid_size = (5, 5)
-    items = {'fire': {'reward': -10, 'loc': [12]},
-             'water': {'reward': 10, 'loc': [18]}}
+    domain_file = './PruebasGrid/RandomGoalInitialState/navigation_1_grid.net'
 
-    gamma = 1.0
+    with open(domain_file, 'r') as file:
+        lines = file.readlines()
+        print(lines)
+        nrows = len(lines)
+        ncols = len(lines[0].strip().split())
+        walls = []
+        end = 0
+        iterator = 0
+        for i in range(nrows):
+            tokens = lines[i].strip().split()
+            print(tokens)
+            for j in range(ncols):
+                print(tokens[j])
+                if tokens[j] == "1":
+                    walls.append(iterator)
+                if tokens[j] == "3":
+                    end = iterator
+                iterator = iterator + 1
+                    
+    grid_size = (nrows, ncols)
+    items = {'fire': {'reward': -10, 'loc': walls},
+             'water': {'reward': 10, 'loc': [end]}}
+
+    gamma = 0.9
     theta = 1e-10
 
     v = np.zeros(np.prod(grid_size))
@@ -160,5 +184,6 @@ if __name__ == '__main__':
 
     v, policy = interate_values(env, v, policy, gamma, theta)
 
-    print_v(v, env)
+    # print_v(v, env)
     print_policy(v, policy, env)
+

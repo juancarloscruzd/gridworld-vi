@@ -17,6 +17,8 @@ with open(domain_file, 'r') as file:
     nrows = len(lines)
     ncols = len(lines[0].strip().split())
     grid = np.zeros((nrows, ncols))
+    grid_v = np.zeros(np.prod((nrows, ncols)))
+    grid_policy = np.full(np.prod((nrows, ncols)), 'n')
     for i in range(nrows):
         tokens = lines[i].strip().split()
         for j in range(ncols):
@@ -106,6 +108,7 @@ while True:
     iteration += 1
 
 print(policy)
+print(grid_policy.shape)
 
 line_grid = ""
 for i in range(nrows):
@@ -113,5 +116,8 @@ for i in range(nrows):
         
         if((i!=0 and j!=19) and (i!=19 and j!=0)):
             line_grid += policy[(i,j)] + " "
-    print(line_grid + '\n')
+            print(str(policy[(i,j)]))
+            grid_policy[i][j] = str(policy[(i,j)])
     line_grid = ""
+
+print(grid_policy)

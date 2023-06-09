@@ -157,11 +157,26 @@ def interate_values(grid, v , policy, gamma, theta, p_stoch):
 
 if __name__ == '__main__':
 
-    grid_size = (10, 10)
-    items = {'fire': {'reward': -10, 'loc': [12]},
-             'water': {'reward': 10, 'loc': [18]}}
+    domain_file = './PruebasGrid/FixedGoalInitialState/navigation_2_grid.net'
 
-    gamma = 1.0
+    with open(domain_file, 'r') as file:
+        lines = file.readlines()
+        nrows = len(lines)
+        ncols = len(lines[0].strip().split())
+        walls = []
+        iterator = 0
+        for i in range(nrows):
+            tokens = lines[i].strip().split()
+            for j in range(ncols):
+                if tokens[j] == "1":
+                    walls.append(iterator)
+                iterator = iterator + 1
+
+    grid_size = (nrows, ncols)
+    items = {'fire': {'reward': -10, 'loc': walls},
+             'water': {'reward': 10, 'loc': [nrows-1]}}
+
+    gamma = 0.9
     theta = 1e-10
     p_stoch = 0.7
 
@@ -172,5 +187,5 @@ if __name__ == '__main__':
 
     v, policy = interate_values(env, v, policy, gamma, theta, p_stoch)
 
-    print_v(v, env)
+    # print_v(v, env)
     print_policy(v, policy, env)
